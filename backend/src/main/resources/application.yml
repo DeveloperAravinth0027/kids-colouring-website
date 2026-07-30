@@ -1,0 +1,273 @@
+# ============================================================
+# Kids Colouring Book E-commerce Platform
+# Spring Boot Application Configuration
+# Base configuration (shared across profiles)
+# ============================================================
+
+spring:
+  application:
+    name: kids-colour-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # ---- DataSource ----
+  datasource:
+    # connectionCollation forces the session to real 4-byte utf8mb4 so emoji
+    # (🦁, 🦕 …) store correctly. `characterEncoding=UTF-8` alone mapped to the
+    # 3-byte legacy utf8 and mangled emoji to '?'.
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:kids_colour_db}?useSSL=false&serverTimezone=Asia/Kolkata&connectionCollation=utf8mb4_unicode_ci&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:kidscolour_user}
+    password: ${DB_PASSWORD:kidscolour_pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # Sized for ~1000 concurrent users. Queries are short, so a pool far
+      # smaller than the user count is correct — oversizing just moves the
+      # contention into the database.
+      connection-timeout: 10000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 50
+      minimum-idle: 10
+      pool-name: KidsColourPool
+      connection-test-query: SELECT 1
+
+  # ---- JPA / Hibernate ----
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: false
+        jdbc:
+          batch_size: 20
+          order_inserts: true
+          order_updates: true
+        cache:
+          use_second_level_cache: false
+    open-in-view: false
+
+  # ---- Email (Gmail SMTP) ----
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    default-encoding: UTF-8
+
+  # ---- Thymeleaf (for email templates) ----
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+  # ---- File Upload ----
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 55MB
+      max-request-size: 60MB
+
+  # ---- Cache ----
+  # The catalogue is read constantly and changes rarely, so it's cached in
+  # memory and evicted whenever an admin edits a book or category.
+  cache:
+    type: caffeine
+    cache-names: books,bookDetail,categories
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=120s
+
+# ---- Server ----
+server:
+  port: ${SERVER_PORT:8080}
+  tomcat:
+    threads:
+      max: 300           # concurrent request workers
+      min-spare: 25
+    accept-count: 200    # queue depth before connections are refused
+    max-connections: 10000
+    connection-timeout: 20000
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    min-response-size: 1024
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+# ---- Management / Actuator ----
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only a liveness probe is public. `metrics` leaked internal traffic and
+        # memory data, and `env` can expose configuration values including
+        # credentials — neither belongs on a public endpoint.
+        include: health
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
+
+info:
+  app:
+    name: Kids Colouring Book API
+    version: "@project.version@"
+    description: Kids Colouring Book E-commerce Platform REST API
+
+# ============================================================
+# Custom Application Properties
+# ============================================================
+
+app:
+  # ---- JWT ----
+  jwt:
+    secret: ${JWT_SECRET:default-secret-key-please-change-in-production-minimum-256-bits}
+    expiration-ms: ${JWT_EXPIRATION:900000}              # 15 minutes
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000}  # 7 days
+    issuer: kids-colour-api
+
+  # ---- CORS ----
+  cors:
+    # Comma-separated so @Value List<String> binds correctly (YAML sequences
+    # cannot be resolved via ${...} placeholders).
+    allowed-origins: ${FRONTEND_URL:http://localhost:5173},http://localhost:3000
+    allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+    allowed-headers: "*"
+    exposed-headers: Authorization,Content-Disposition
+    allow-credentials: true
+    max-age: 3600
+
+  # ---- AWS S3 ----
+  aws:
+    access-key: ${AWS_ACCESS_KEY:your-access-key}
+    secret-key: ${AWS_SECRET_KEY:your-secret-key}
+    region: ${AWS_REGION:ap-south-1}
+    s3:
+      bucket-name: ${AWS_S3_BUCKET:kidscolour-pdfs}
+      presigned-url-expiration-hours: 1   # S3 presigned URL TTL
+      download-link-expiration-hours: 24  # Our download token TTL
+
+  # ---- Cloudinary ----
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:your-cloud-name}
+    api-key: ${CLOUDINARY_API_KEY:your-api-key}
+    api-secret: ${CLOUDINARY_API_SECRET:your-api-secret}
+    folder:
+      book-covers: kidscolour/covers
+      preview-images: kidscolour/previews
+
+  # ---- Razorpay ----
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_xxxxxxxxxxxxxxxx}
+    key-secret: ${RAZORPAY_KEY_SECRET:your-razorpay-secret}
+    currency: INR
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:your-webhook-secret}
+
+  # ---- Stripe ----
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:sk_test_xxxxxxxxxxxxxxxx}
+    publishable-key: ${STRIPE_PUBLISHABLE_KEY:pk_test_xxxxxxxxxxxxxxxx}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_xxxxxxxxxxxxxxxx}
+    currency: inr
+
+  # ---- Meta WhatsApp Cloud API ----
+  whatsapp:
+    phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:your-phone-number-id}
+    access-token: ${WHATSAPP_ACCESS_TOKEN:your-access-token}
+    verify-token: ${WHATSAPP_VERIFY_TOKEN:your-verify-token}
+    api-version: v19.0
+    api-url: https://graph.facebook.com
+
+  # ---- Google OAuth ----
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:your-google-client-id.apps.googleusercontent.com}
+    token-info-url: https://oauth2.googleapis.com/tokeninfo
+
+  # ---- Email Sender Details ----
+  email:
+    from-address: ${MAIL_USERNAME:noreply@kidscolour.com}
+    from-name: "Kids Colouring Books"
+    support-email: support@kidscolour.com
+
+  # ---- Frontend ----
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
+    reset-password-path: /reset-password
+    order-success-path: /payment-success
+
+  # ---- File Validation ----
+  upload:
+    allowed-image-types:
+      - image/jpeg
+      - image/png
+      - image/webp
+    allowed-pdf-types:
+      - application/pdf
+    max-image-size-mb: 5
+    max-pdf-size-mb: 50
+
+  # ---- Rate Limiting ----
+  rate-limit:
+    auth:
+      capacity: 5
+      refill-tokens: 5
+      refill-duration-minutes: 1
+    api:
+      capacity: 100
+      refill-tokens: 100
+      refill-duration-minutes: 1
+
+# ---- Logging ----
+logging:
+  level:
+    root: INFO
+    com.kidscolour: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/kids-colour-api.log
+    max-size: 10MB
+    max-history: 30
+
+# ---- SpringDoc / Swagger ----
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+  info:
+    title: Kids Colouring Book API
+    description: Complete REST API for Kids Colouring Book E-commerce Platform
+    version: 1.0.0
+    contact:
+      name: Kids Colour Support
+      email: support@kidscolour.com

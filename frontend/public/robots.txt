@@ -1,0 +1,19 @@
+# KidsColour — robots.txt
+# Replace the domain below with your production domain.
+
+User-agent: *
+Allow: /
+
+# Private / transactional pages — no SEO value, keep out of the index
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment-success
+Disallow: /profile
+Disallow: /my-downloads
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+Disallow: /forgot-password
+
+Sitemap: https://www.kidscolour.com/sitemap.xml

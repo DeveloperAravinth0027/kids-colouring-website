@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; color: #374151; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h1 { color: #FF6B6B; margin-top: 0; }
+        .btn { display: inline-block; background-color: #4D96FF; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+        .footer { margin-top: 40px; font-size: 14px; color: #6b7280; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Thank you for your order!</h1>
+        <p>Hi there,</p>
+        <p>We've successfully received your order <strong><span th:text="${orderNumber}">ORD-123</span></strong> at <span th:text="${storeName}">Kids Colouring Book</span>.</p>
+        <p>You can access your digital colouring books right away by clicking the button below:</p>
+        
+        <a th:href="${downloadUrl}" class="btn">View My Downloads</a>
+        
+        <p style="margin-top: 30px;">If you have any questions, simply reply to this email. We're here to help!</p>
+        
+        <div class="footer">
+            <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> <span th:text="${storeName}">Kids Colouring Book</span>. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

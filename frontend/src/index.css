@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-gray-800 font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-gray-900 tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl shadow-soft hover:shadow-float transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-primary-light focus:ring-opacity-50 active:translate-y-0 active:shadow-soft;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary-dark text-gray-900 font-bold py-3 px-6 rounded-xl shadow-soft hover:shadow-float transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-secondary-light focus:ring-opacity-50 active:translate-y-0 active:shadow-soft;
+  }
+
+  .btn-blue {
+    @apply bg-blue hover:bg-blue-dark text-white font-bold py-3 px-6 rounded-xl shadow-soft hover:shadow-float transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-blue-light focus:ring-opacity-50 active:translate-y-0 active:shadow-soft;
+  }
+
+  .btn-outline {
+    @apply bg-transparent hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 border-2 border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gray-200 focus:ring-opacity-50;
+  }
+  
+  .card {
+    @apply bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-soft;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-0 transition-colors bg-gray-50 focus:bg-white text-gray-900;
+  }
+}
+
+/* Custom styles for animations that Tailwind doesn't handle natively as well */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(90deg, #FF6B6B, #9B5DE5);
+}
+
+.blob-shape {
+  border-radius: 41% 59% 70% 30% / 32% 40% 60% 68%;
+  animation: blob-bounce 8s infinite alternate ease-in-out;
+}
+
+@keyframes blob-bounce {
+  0% {
+    border-radius: 41% 59% 70% 30% / 32% 40% 60% 68%;
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Swiper custom styles */
+.swiper-pagination-bullet {
+  @apply bg-gray-300 opacity-100 !important;
+}
+.swiper-pagination-bullet-active {
+  @apply bg-primary w-6 rounded-full transition-all duration-300 !important;
+}

@@ -1,0 +1,22 @@
+package com.kidscolour.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DashboardStatsResponse {
+    private Long totalOrders;
+    private BigDecimal totalRevenue;
+    private Long totalCustomers;
+    private Long totalBooks;
+    
+    private Long recentOrdersCount;
+    private BigDecimal recentRevenue;
+}

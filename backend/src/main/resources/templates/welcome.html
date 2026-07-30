@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Kids Colouring Book</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; color: #374151; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h1 { color: #FF6B6B; margin-top: 0; }
+        .footer { margin-top: 40px; font-size: 14px; color: #6b7280; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <p>Hi <span th:text="${name}">Customer</span>,</p>
+        <p>Welcome to Kids Colouring Book! We're so excited to have you join our community.</p>
+        <p>You can now browse our collection of beautiful colouring books and download them instantly.</p>
+        
+        <p style="margin-top: 30px;">Happy colouring!</p>
+        
+        <div class="footer">
+            <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Kids Colouring Book. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
