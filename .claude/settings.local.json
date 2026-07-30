@@ -72,7 +72,15 @@
       "Bash('/c/Program Files/MySQL/MySQL Server 8.4/bin/mysql.exe' -u root -N -e 'SELECT id, image_url FROM kids_colour_db.book_pages LIMIT 3;')",
       "Bash(curl -s -o /dev/null -w \"favicon.ico -> %{http_code} %{content_type} \\(%{size_download}b\\)\\\\n\" http://localhost:5173/favicon.ico)",
       "Bash(curl -s -o /dev/null -w \"favicon-32 -> %{http_code} %{content_type}\\\\n\" http://localhost:5173/favicon-32x32.png)",
-      "Bash(awk '{print $5, $NF}')"
+      "Bash(awk '{print $5, $NF}')",
+      "Bash(echo \"=== database folder ===\")",
+      "Bash(find '/c/Users/User/Pictures/Kids Colouring Website/database' -type f)",
+      "Bash('/c/Program Files/MySQL/MySQL Server 8.4/bin/mysql.exe' -u root -e 'DROP DATABASE IF EXISTS railway_test; CREATE DATABASE railway_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;')",
+      "Bash('/c/Program Files/MySQL/MySQL Server 8.4/bin/mysql.exe' -u root -N -e 'SELECT COUNT\\(*\\) AS tables_in_fresh_db FROM information_schema.tables WHERE table_schema='\\\\''railway_test'\\\\'';')",
+      "Bash('/c/Program Files/MySQL/MySQL Server 8.4/bin/mysql.exe' -u root -N -e 'SELECT COUNT\\(*\\) AS total_tables FROM information_schema.tables WHERE table_schema='\\\\''railway_test'\\\\'';')",
+      "Bash('/c/Program Files/MySQL/MySQL Server 8.4/bin/mysql.exe' -u root -N -e 'SELECT table_name FROM information_schema.tables WHERE table_schema='\\\\''railway_test'\\\\'' AND table_name IN \\('\\\\''book_grants'\\\\'','\\\\''book_pages'\\\\'','\\\\''cart_items'\\\\'','\\\\''drawing_sessions'\\\\''\\) ORDER BY table_name;')",
+      "Bash('/c/Program Files/MySQL/MySQL Server 8.4/bin/mysql.exe' -u root -N -e 'SELECT table_name,column_name FROM information_schema.columns WHERE table_schema='\\\\''railway_test'\\\\'' AND \\(\\(table_name='\\\\''categories'\\\\'' AND column_name IN \\('\\\\''book_type'\\\\'','\\\\''emoji'\\\\''\\)\\) OR \\(table_name='\\\\''books'\\\\'' AND column_name='\\\\''book_type'\\\\''\\)\\) ORDER BY table_name,column_name;')",
+      "Bash(curl -s -o /dev/null -w \"/api/books -> %{http_code}\\\\n\" http://localhost:8080/api/books)"
     ]
   }
 }

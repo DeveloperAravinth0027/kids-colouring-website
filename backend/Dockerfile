@@ -22,6 +22,11 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
+# Deployed images run the production profile: Hibernate does not touch the
+# schema (ddl-auto=none) and the app self-provisions any missing tables from
+# db/schema-init.sql on startup. Railway env vars still override this if set.
+ENV SPRING_PROFILES_ACTIVE=prod
+
 EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","app.jar"]

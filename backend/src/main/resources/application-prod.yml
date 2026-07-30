@@ -1,9 +1,21 @@
 spring:
+  # Hibernate never touches the schema in production...
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: false
-  
+
+  # ...instead, on startup we run an idempotent schema script that creates any
+  # missing tables (CREATE TABLE IF NOT EXISTS). This makes a fresh database
+  # (e.g. a new Railway MySQL) self-provision on first boot, and is a no-op on
+  # subsequent boots. continue-on-error lets the few non-idempotent ALTER/CREATE
+  # INDEX statements be skipped harmlessly when they already exist.
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema-init.sql
+      continue-on-error: true
+
 logging:
   level:
     root: INFO
