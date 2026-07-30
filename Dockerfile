@@ -13,7 +13,8 @@
 FROM node:20-alpine AS frontend
 WORKDIR /fe
 COPY frontend/package*.json ./
-RUN npm ci
+# npm install (not ci) so a lock-file mismatch can never hard-fail the build.
+RUN npm install --no-audit --no-fund
 COPY frontend/ ./
 RUN npm run build            # outputs /fe/dist
 

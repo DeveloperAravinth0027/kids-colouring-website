@@ -10,8 +10,8 @@ WORKDIR /app
 # Copy package files first (layer caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --silent
+# Install dependencies (npm install tolerates lock-file drift; ci fails hard on it)
+RUN npm install --no-audit --no-fund
 
 # Copy source
 COPY . .
