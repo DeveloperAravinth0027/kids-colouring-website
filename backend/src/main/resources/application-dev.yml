@@ -1,11 +1,22 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: validate
+      # Schema is owned by db/schema-init.sql (self-provisioning), not Hibernate.
+      # 'validate' crashed on any DB whose schema wasn't hand-loaded (e.g. a fresh
+      # Railway MySQL) — 'none' lets the init script create what's missing instead.
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
+  # Create any missing tables on startup (CREATE TABLE IF NOT EXISTS), so this
+  # profile also works against a brand-new database. Safe/no-op on re-runs.
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema-init.sql
+      continue-on-error: true
 
 logging:
   level:
