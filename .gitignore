@@ -71,3 +71,6 @@ backend/src/test/resources/application-test.yml
 # ---- Build Outputs ----
 build/
 out/
+
+# Frontend build baked in by Docker (not source)
+backend/src/main/resources/static/

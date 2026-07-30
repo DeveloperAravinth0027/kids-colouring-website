@@ -1,0 +1,12 @@
+# Keep the Docker build context small and reproducible.
+**/node_modules
+**/dist
+**/target
+backend/uploads
+backend/logs
+**/*.log
+.git
+.gitignore
+.claude
+*.md
+frontend/.env.local
