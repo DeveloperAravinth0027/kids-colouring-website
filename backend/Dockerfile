@@ -1,31 +1,21 @@
-
-# ===========================
-# Stage 1: Build the application
-# ===========================
+# ---------- Build Stage ----------
 FROM maven:3.9.8-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-# Copy Maven files
+# Copy pom.xml first
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-
-# Give execute permission
-RUN chmod +x mvnw
 
 # Download dependencies
-RUN ./mvnw dependency:go-offline
+RUN mvn dependency:go-offline
 
-# Copy source code
+# Copy source
 COPY src ./src
 
 # Build application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-# ===========================
-# Stage 2: Runtime
-# ===========================
+# ---------- Runtime Stage ----------
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
