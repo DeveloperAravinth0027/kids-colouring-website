@@ -3,13 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
-import { User, Mail, Phone, Shield, LogOut, Save, Package, BookOpen, Download } from 'lucide-react';
+import { User, Mail, Phone, Shield, LogOut, Save, Package, BookOpen, Download, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { updateProfile, logout } from '../store/slices/authSlice';
+import { updateProfile, uploadAvatar, logout } from '../store/slices/authSlice';
 import orderService from '../services/orderService';
+import { resizeImage } from '../utils/fileStore';
 
 const initialsOf = (name = '') =>
   name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+
+// A resized JPEG data URL -> Blob we can upload as multipart form data.
+const dataUrlToBlob = (dataUrl) => {
+  const [head, body] = dataUrl.split(',');
+  const mime = head.match(/:(.*?);/)[1];
+  const bin = atob(body);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+};
 
 const Profile = () => {
   const user = useSelector((s) => s.auth.user);
@@ -19,6 +30,7 @@ const Profile = () => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [stats, setStats] = useState({ orders: 0, books: 0 });
 
   // A real backend session (JWT) is needed to edit the profile.
@@ -63,6 +75,24 @@ const Profile = () => {
     navigate('/');
   };
 
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast.error('Please choose an image file.');
+    if (!isAuthed) return toast.error('Log in with your account to change your photo.');
+    setUploadingPhoto(true);
+    try {
+      const dataUrl = await resizeImage(file, 400, 0.85); // avatars stay small
+      await dispatch(uploadAvatar(dataUrlToBlob(dataUrl))).unwrap();
+      toast.success('Profile photo updated ✓');
+    } catch (err) {
+      toast.error(typeof err === 'string' ? err : 'Could not upload photo.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const statCards = [
     { icon: Package, label: 'Orders', value: stats.orders, bg: 'bg-blue-100', fg: 'text-blue' },
     { icon: BookOpen, label: 'Books owned', value: stats.books, bg: 'bg-primary-100', fg: 'text-primary' },
@@ -79,16 +109,28 @@ const Profile = () => {
       <section className="bg-gradient-to-b from-blue-50 to-white py-14">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-            {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} className="w-24 h-24 rounded-full object-cover shadow-soft" />
-            ) : (
-              <div
-                className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-display shadow-soft shrink-0"
-                style={{ background: 'linear-gradient(135deg, #FF6B6B, #9B5DE5)' }}
+            <div className="relative w-24 h-24 shrink-0">
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} className="w-24 h-24 rounded-full object-cover shadow-soft" />
+              ) : (
+                <div
+                  className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-display shadow-soft"
+                  style={{ background: 'linear-gradient(135deg, #FF6B6B, #9B5DE5)' }}
+                >
+                  {initialsOf(user.name)}
+                </div>
+              )}
+              {/* Upload / change photo */}
+              <label
+                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-soft cursor-pointer hover:bg-primary-dark transition-colors ring-2 ring-white"
+                title="Change photo"
               >
-                {initialsOf(user.name)}
-              </div>
-            )}
+                {uploadingPhoto
+                  ? <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  : <Camera size={16} />}
+                <input type="file" accept="image/*" onChange={handlePhoto} disabled={uploadingPhoto} className="hidden" />
+              </label>
+            </div>
             <div>
               <h1 className="text-4xl mb-1">{user.name}</h1>
               <p className="text-gray-500">{user.email}</p>

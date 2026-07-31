@@ -65,6 +65,22 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+export const uploadAvatar = createAsyncThunk(
+  'auth/uploadAvatar',
+  async (fileOrBlob, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', fileOrBlob, 'avatar.jpg');
+      const response = await api.post('/users/me/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Could not upload photo');
+    }
+  }
+);
+
 export const googleAuth = createAsyncThunk(
   'auth/google',
   async (token, { rejectWithValue }) => {
@@ -162,6 +178,10 @@ const authSlice = createSlice({
       })
       // Update profile
       .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      // Upload avatar
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.user = action.payload;
       })
       // Google Auth

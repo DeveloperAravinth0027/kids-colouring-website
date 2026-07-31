@@ -53,6 +53,7 @@ public class SecurityConfig {
                 // Guests may ask whether a book is open to them (free books are).
                 .requestMatchers(HttpMethod.GET, "/api/access/books/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/files/books/*/cover").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/files/users/*/avatar").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/payments/webhook/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
