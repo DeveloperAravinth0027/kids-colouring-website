@@ -44,7 +44,7 @@ const BookDetails = () => {
   const perks = [
     { icon: Download, text: 'Instant PDF download' },
     { icon: Printer, text: 'Print as many times as you like' },
-    { icon: FileText, text: `${book.pages} high-resolution pages` },
+    { icon: FileText, text: book.pages > 0 ? `${book.pages} high-resolution pages` : 'High-resolution printable pages' },
   ];
 
   // TODO: replace with your production domain

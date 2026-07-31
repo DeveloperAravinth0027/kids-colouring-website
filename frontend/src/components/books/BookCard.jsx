@@ -88,7 +88,11 @@ const BookCard = ({ book, index = 0 }) => {
           </div>
 
           <h3 className="text-xl mb-1 group-hover:text-primary transition-colors">{book.name}</h3>
-          <p className="text-sm text-gray-500 mb-4">{book.pages} colouring pages</p>
+          <p className="text-sm text-gray-500 mb-4">
+            {book.pages > 0
+              ? `${book.pages} ${book.bookType === 'STORY' ? 'pages' : 'colouring pages'}`
+              : (book.bookType === 'STORY' ? 'Story book' : 'Colouring book')}
+          </p>
 
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-2">

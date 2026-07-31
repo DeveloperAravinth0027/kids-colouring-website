@@ -100,11 +100,21 @@ public class BookFileService {
         String key = "books/" + bookId + "/book.pdf";
         Path target = Paths.get(uploadDir).resolve(key);
         Files.createDirectories(target.getParent());
-        Files.write(target, file.getBytes());
+        byte[] pdfBytes = file.getBytes();
+        Files.write(target, pdfBytes);
 
         book.setPdfS3Key(key);
         book.setPdfSizeMb(BigDecimal.valueOf(file.getSize())
                 .divide(BigDecimal.valueOf(1024 * 1024), 2, RoundingMode.HALF_UP));
+
+        // Count the PDF's pages so the catalogue shows an accurate page count
+        // instead of 0. Best-effort — a page count is not worth failing the upload.
+        try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.Loader.loadPDF(pdfBytes)) {
+            book.setNumPages(doc.getNumberOfPages());
+        } catch (Exception e) {
+            log.warn("Could not count PDF pages for book {}: {}", bookId, e.getMessage());
+        }
+
         bookRepository.save(book);
 
         log.info("Book {} — PDF stored at {} ({} bytes)", bookId, key, file.getSize());
