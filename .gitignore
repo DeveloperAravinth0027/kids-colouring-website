@@ -74,3 +74,7 @@ out/
 
 # Frontend build baked in by Docker (not source)
 backend/src/main/resources/static/
+
+# Razorpay live keys — NEVER commit
+rzp-key.csv
+*.csv

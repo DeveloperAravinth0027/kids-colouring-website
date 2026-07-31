@@ -16,11 +16,17 @@ RUN npm install --no-audit --no-fund
 # Copy source
 COPY . .
 
-# Build arguments
+# Build arguments (Railway passes matching service variables in as build args).
 ARG VITE_API_BASE_URL
 ARG VITE_RAZORPAY_KEY_ID
 ARG VITE_GOOGLE_CLIENT_ID
 ARG VITE_APP_NAME="Kids Colouring Books"
+
+# Promote to ENV so Vite embeds them into the bundle at build time. The Razorpay
+# KEY ID is a publishable value (safe in client code); the SECRET stays backend-only.
+ENV VITE_RAZORPAY_KEY_ID=$VITE_RAZORPAY_KEY_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+ENV VITE_APP_NAME=$VITE_APP_NAME
 
 # Build the app
 RUN npm run build
