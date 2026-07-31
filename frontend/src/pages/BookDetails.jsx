@@ -150,11 +150,17 @@ const BookDetails = () => {
             <p className="text-lg text-gray-600 mb-6">{book.description}</p>
 
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-4xl font-display text-gray-900">₹{book.finalPrice}</span>
-              {book.discount > 0 && (
+              {book.isFree ? (
+                <span className="text-4xl font-display text-green-dark">Free</span>
+              ) : (
                 <>
-                  <span className="text-xl text-gray-400 line-through">₹{book.price}</span>
-                  <span className="bg-green-100 text-green-dark text-sm font-extrabold px-3 py-1 rounded-full">Save {book.discount}%</span>
+                  <span className="text-4xl font-display text-gray-900">₹{book.finalPrice}</span>
+                  {book.discount > 0 && (
+                    <>
+                      <span className="text-xl text-gray-400 line-through">₹{book.price}</span>
+                      <span className="bg-green-100 text-green-dark text-sm font-extrabold px-3 py-1 rounded-full">Save {book.discount}%</span>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -185,14 +191,17 @@ const BookDetails = () => {
               {book.isFree ? ' · Free' : ' · Premium'}
             </Link>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button onClick={handleAdd} className="btn-outline flex items-center justify-center gap-2 flex-1">
-                <ShoppingCart size={20} /> Add to Cart
-              </button>
-              <button onClick={handleBuy} className="btn-primary flex items-center justify-center gap-2 flex-1">
-                Buy Now
-              </button>
-            </div>
+            {/* Free books are opened straight from the button above — no buying. */}
+            {!book.isFree && (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button onClick={handleAdd} className="btn-outline flex items-center justify-center gap-2 flex-1">
+                  <ShoppingCart size={20} /> Add to Cart
+                </button>
+                <button onClick={handleBuy} className="btn-primary flex items-center justify-center gap-2 flex-1">
+                  Buy Now
+                </button>
+              </div>
+            )}
 
             {/* Printed edition on Amazon KDP — only shown once a link is set */}
             {book.amazonKdpLink && (

@@ -92,18 +92,27 @@ const BookCard = ({ book, index = 0 }) => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-display text-gray-900">₹{book.finalPrice}</span>
-              {book.discount > 0 && (
-                <span className="text-sm text-gray-500 line-through">₹{book.price}</span>
+              {book.isFree ? (
+                <span className="text-2xl font-display text-green-dark">Free</span>
+              ) : (
+                <>
+                  <span className="text-2xl font-display text-gray-900">₹{book.finalPrice}</span>
+                  {book.discount > 0 && (
+                    <span className="text-sm text-gray-500 line-through">₹{book.price}</span>
+                  )}
+                </>
               )}
             </div>
-            <button
-              onClick={handleAdd}
-              aria-label={`Add ${book.name} to cart`}
-              className="bg-primary text-white rounded-full p-3 shadow-soft hover:bg-primary-dark hover:scale-110 active:scale-95 transition-all"
-            >
-              <ShoppingCart size={18} />
-            </button>
+            {/* Free books are opened from the card itself — no cart button. */}
+            {!book.isFree && (
+              <button
+                onClick={handleAdd}
+                aria-label={`Add ${book.name} to cart`}
+                className="bg-primary text-white rounded-full p-3 shadow-soft hover:bg-primary-dark hover:scale-110 active:scale-95 transition-all"
+              >
+                <ShoppingCart size={18} />
+              </button>
+            )}
           </div>
         </div>
       </Link>

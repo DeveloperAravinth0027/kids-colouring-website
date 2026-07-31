@@ -221,8 +221,8 @@ const AdminBooks = () => {
       shortDescription: (form.description?.trim() || form.name.trim()).slice(0, 150),
       ageGroup: form.ageRange?.trim() || '3-8',
       numPages: Number(form.pages) || 1,
-      price: Number(form.price),
-      discountPercent: Number(form.discount) || 0,
+      price: form.isFree ? 0 : Number(form.price),
+      discountPercent: form.isFree ? 0 : (Number(form.discount) || 0),
       isFeatured: !!form.featured,
       isFree: !!form.isFree,
       amazonKdpLink: form.amazonKdpLink?.trim() || null,
@@ -236,7 +236,8 @@ const AdminBooks = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) return toast.error('Please enter a book name.');
-    if (!form.price || Number(form.price) <= 0) return toast.error('Please enter a valid price.');
+    // Free books don't need a price; only paid books must have one.
+    if (!form.isFree && (!form.price || Number(form.price) <= 0)) return toast.error('Please enter a valid price.');
 
     setBusy(true);
     try {
@@ -494,8 +495,10 @@ const AdminBooks = () => {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block font-bold text-gray-700 mb-1">Price (₹) *</label>
-                    <input type="number" min="0" value={form.price} onChange={set('price')} className="input-field" placeholder="199" />
+                    <label className="block font-bold text-gray-700 mb-1">Price (₹) {form.isFree ? '' : '*'}</label>
+                    <input type="number" min="0" value={form.isFree ? '' : form.price} onChange={set('price')}
+                      disabled={form.isFree} className="input-field disabled:bg-gray-100 disabled:text-gray-400"
+                      placeholder={form.isFree ? 'Free' : '199'} />
                   </div>
                   <div>
                     <label className="block font-bold text-gray-700 mb-1">Discount %</label>
