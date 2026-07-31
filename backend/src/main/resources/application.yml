@@ -127,6 +127,12 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    # The SMTP (mail) check fails with placeholder Gmail creds and dragged the
+    # whole /actuator/health to DOWN, which made Railway treat every new deploy
+    # as unhealthy and never promote it. Email isn't required for liveness.
+    mail:
+      enabled: false
   info:
     env:
       enabled: false
