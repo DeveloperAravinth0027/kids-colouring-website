@@ -397,7 +397,9 @@ const AdminBooks = () => {
               <div className="p-4">
                 <h3 className="font-bold text-gray-900 truncate">{book.name}</h3>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="font-display text-lg text-primary">₹{book.finalPrice}</span>
+                  <span className={`font-display text-lg ${book.isFree ? 'text-green-dark' : 'text-primary'}`}>
+                    {book.isFree ? 'Free' : `₹${book.finalPrice}`}
+                  </span>
                   <span className="flex items-center gap-1 text-sm text-gray-400">
                     <Star size={14} fill="currentColor" className="text-secondary-dark" /> {book.rating}
                   </span>
