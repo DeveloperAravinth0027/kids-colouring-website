@@ -3,6 +3,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+    # Keep the session open through view rendering so entities with lazily-loaded
+    # relations (Order.items, Cart items, etc.) serialize without
+    # LazyInitializationException. The app is built assuming this is on.
+    open-in-view: true
     show-sql: false
 
   # ...instead, on startup we run an idempotent schema script that creates any

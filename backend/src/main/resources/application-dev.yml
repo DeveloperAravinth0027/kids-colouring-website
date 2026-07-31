@@ -5,6 +5,10 @@ spring:
       # 'validate' crashed on any DB whose schema wasn't hand-loaded (e.g. a fresh
       # Railway MySQL) — 'none' lets the init script create what's missing instead.
       ddl-auto: none
+    # Keep the Hibernate session open through view rendering so entities with
+    # lazily-loaded relations (Order.items, Cart items, etc.) serialize without
+    # LazyInitializationException. The app is built assuming this is on.
+    open-in-view: true
     show-sql: true
     properties:
       hibernate:
