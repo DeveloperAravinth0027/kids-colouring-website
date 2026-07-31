@@ -26,3 +26,4 @@ logging:
     com.kidscolour: INFO
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
+# Deploy trigger: force a fresh build now that a valid JWT_SECRET is set.
