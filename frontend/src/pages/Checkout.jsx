@@ -132,12 +132,17 @@ const Checkout = () => {
         billingEmail: email,
       })).data;
 
-      if (razorpayEnabled && (await ensureRazorpay())) {
+      // Free order (all free books / 100%-off): nothing to pay — the backend
+      // already marked it PAID, so just confirm and send them to their books.
+      const totalDue = Number(order.totalAmount ?? subtotal);
+      if (totalDue > 0 && razorpayEnabled && (await ensureRazorpay())) {
         await payWithRazorpay(order);
         return; // the modal drives the rest
       }
 
-      finish('Order placed! 🎉 Find your books in My Downloads.');
+      finish(totalDue > 0
+        ? 'Order placed! 🎉 Find your books in My Downloads.'
+        : 'Enjoy your free book! 🎉 It’s now in My Downloads.');
     } catch (err) {
       const msg = err?.response?.data?.message || '';
       // A book that only ever existed in this browser (not on the server) can't
@@ -189,7 +194,7 @@ const Checkout = () => {
             </div>
           </div>
           <button type="submit" disabled={processing} className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-60">
-            <Lock size={18} /> {processing ? 'Processing…' : `Pay ₹${subtotal}`}
+            <Lock size={18} /> {processing ? 'Processing…' : (subtotal > 0 ? `Pay ₹${subtotal}` : 'Get Free Book')}
           </button>
         </motion.form>
 

@@ -98,6 +98,13 @@ public class OrderServiceImpl implements OrderService {
             });
         }
         
+        // A zero-total order (all free books, or a 100%-off coupon) has nothing
+        // to pay, so mark it PAID right away — the customer gets instant access
+        // and it appears in My Downloads without any payment step.
+        if (order.getTotalAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            order.setStatus(OrderStatus.PAID);
+        }
+
         Order savedOrder = orderRepository.save(order);
         return mapToResponse(savedOrder);
     }
