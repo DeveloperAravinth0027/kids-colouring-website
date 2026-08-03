@@ -34,30 +34,34 @@ public class BookFileController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> uploadPdf(
             @PathVariable Long bookId,
             @RequestParam("file") MultipartFile file) throws IOException {
+        // 1) Store the sellable PDF synchronously — fast and reliable.
         String key = bookFileService.uploadPdf(bookId, file);
 
-        int pages = 0;
-        String warning = null;
-        try {
-            pages = bookPageService.generatePagesFromPdf(bookId, file.getBytes()).size();
-        } catch (Throwable e) {
-            // Catch Throwable, not just Exception: rendering a big PDF can hit an
-            // OutOfMemoryError (an Error, not an Exception), which would otherwise
-            // fail the whole upload. The sellable PDF is already stored safely —
-            // only the optional online-colouring pages failed, so report that.
-            log.error("PDF stored for book {} but page rendering failed", bookId, e);
-            warning = "The PDF was saved and is downloadable, but it was too large to also convert into online colouring pages.";
-        }
+        // 2) Render the online colouring pages in the BACKGROUND. Rendering is
+        //    slow and memory-heavy on a small container and would otherwise blow
+        //    the request/proxy timeout, failing the upload with "Could not save
+        //    the book". Read the bytes now (the upload is cleaned up once the
+        //    request returns) and hand them to a worker thread. The PDF is already
+        //    saved and downloadable regardless of whether rendering succeeds.
+        final byte[] pdfBytes = file.getBytes();
+        new Thread(() -> {
+            try {
+                int n = bookPageService.generatePagesFromPdf(bookId, pdfBytes).size();
+                log.info("Book {} — background render produced {} online page(s)", bookId, n);
+            } catch (Throwable e) {
+                log.error("Book {} — background page rendering failed (PDF is still saved)", bookId, e);
+            }
+        }, "pdf-render-" + bookId).start();
 
         Map<String, Object> data = new HashMap<>();
         data.put("key", key);
         data.put("fileName", file.getOriginalFilename());
         data.put("size", file.getSize());
-        data.put("pagesGenerated", pages);
-        if (warning != null) data.put("warning", warning);
+        data.put("pagesQueued", true);
 
         return ResponseEntity.ok(ApiResponse.success(
-                warning != null ? warning : "PDF uploaded — " + pages + " online page(s) created", data));
+                "PDF uploaded — it's downloadable now; online colouring pages are being prepared in the background.",
+                data));
     }
 
     /** Admin: upload/replace a book's cover image. */
