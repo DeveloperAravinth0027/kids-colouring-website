@@ -40,11 +40,13 @@ public class BookFileController {
         String warning = null;
         try {
             pages = bookPageService.generatePagesFromPdf(bookId, file.getBytes()).size();
-        } catch (Exception e) {
-            // The sellable PDF is safely stored either way — only the online
-            // pages failed, so say so instead of failing the whole upload.
+        } catch (Throwable e) {
+            // Catch Throwable, not just Exception: rendering a big PDF can hit an
+            // OutOfMemoryError (an Error, not an Exception), which would otherwise
+            // fail the whole upload. The sellable PDF is already stored safely —
+            // only the optional online-colouring pages failed, so report that.
             log.error("PDF stored for book {} but page rendering failed", bookId, e);
-            warning = "The PDF was saved, but its pages could not be converted for online use.";
+            warning = "The PDF was saved and is downloadable, but it was too large to also convert into online colouring pages.";
         }
 
         Map<String, Object> data = new HashMap<>();

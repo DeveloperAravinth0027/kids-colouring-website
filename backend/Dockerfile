@@ -29,4 +29,6 @@ ENV SPRING_PROFILES_ACTIVE=prod
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","app.jar"]
+# Let the JVM use most of the container's RAM (default heap is a small fraction),
+# so memory-heavy work like rendering a PDF into colouring pages has headroom.
+ENTRYPOINT ["java","-XX:MaxRAMPercentage=75.0","-jar","app.jar"]
