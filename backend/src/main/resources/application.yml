@@ -226,6 +226,11 @@ app:
 
   # ---- File Validation ----
   upload:
+    # Where uploaded files (PDFs, covers, colouring pages, avatars) are stored.
+    # Railway injects RAILWAY_VOLUME_MOUNT_PATH for the attached volume, so files
+    # land ON the persistent volume automatically (no matter its mount path) and
+    # survive restarts/redeploys. Falls back to a local 'uploads' folder in dev.
+    dir: ${APP_UPLOAD_DIR:${RAILWAY_VOLUME_MOUNT_PATH:uploads}}
     allowed-image-types:
       - image/jpeg
       - image/png
